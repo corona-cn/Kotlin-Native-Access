@@ -14,6 +14,17 @@ interface User32 {
     /* === COMPANION === */
     companion object {
         /* === NATIVE BINDINGS === */
+        /**
+         * Pre-bound User32 instance.
+         *
+         * Example:
+         *
+         * ```kotlin
+         * val user32 = User32.user32
+         * val hWnd = user32.GetForegroundWindow()
+         * ```
+         *
+         */
         @JvmField
         val user32 = NativeProxyInterfaceBinder.bind<User32>(NativeFunctionBinder.user32)
     }

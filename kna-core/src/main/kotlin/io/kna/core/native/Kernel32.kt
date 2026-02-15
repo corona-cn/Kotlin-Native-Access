@@ -14,6 +14,17 @@ interface Kernel32 {
     /* === COMPANION === */
     companion object {
         /* === NATIVE BINDINGS === */
+        /**
+         * Pre-bound Kernel32 instance.
+         *
+         * Example:
+         *
+         * ```kotlin
+         * val kernel32 = Kernel32.kernel32
+         * val pid = kernel32.GetCurrentProcessId()
+         * ```
+         *
+         */
         @JvmField
         val kernel32 = NativeProxyInterfaceBinder.bind<Kernel32>(NativeFunctionBinder.kernel32)
     }

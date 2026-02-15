@@ -18,15 +18,28 @@ import java.nio.*
  *
  * The primary use case is binding to Windows API functions:
  *
- * ```
- * // Bind to user32!MessageBoxW
+ * ```kotlin
+ * // Bind to library user32
  * val user32 = SymbolLookup.libraryLookup("user32", NativeFunctionBinder.sharedArena)
+ *
+ * // Bind to function "MessageBoxW"
  * val messageBox = NativeFunctionBinder.bind(user32, "MessageBoxW") {
- *     params(       // HWND hWnd
+ *     params(
+ *         address,  // HWND hWnd
  *         address,  // LPCWSTR lpText
  *         address,  // LPCWSTR lpCaption
- *         address,  // UINT uType
- *         uint
+ *         uint      // UINT uType
+ *     )
+ *     returns(int)  // int return value
+ * }
+ *
+ * // Bind to function "MessageBoxW" in another way
+ * val otherMessageBox = NativeFunctionBinder.bindUser32("MessageBoxW") {
+ *     params(
+ *         address,  // HWND hWnd
+ *         address,  // LPCWSTR lpText
+ *         address,  // LPCWSTR lpCaption
+ *         uint      // UINT uType
  *     )
  *     returns(int)  // int return value
  * }
@@ -45,16 +58,34 @@ import java.nio.*
  * }
  * ```
  *
- * For libraries other than kernel32, use the generic [bind] function:
+ * For libraries other than the pre-configured ones, you can provide
+ * any [SymbolLookup] instance:
  *
- * ```
- * // Bind to user32!MessageBoxW (alternative approach)
- * val user32 = SymbolLookup.libraryLookup("user32", NativeFunctionBinder.sharedArena)
- * val messageBox = NativeFunctionBinder.bind(user32, "MessageBoxW") {
- *     params(address, address, address, uint)
+ * ```kotlin
+ * // Load your own custom library
+ * val myLib = SymbolLookup.libraryLookup("mylib.dll", NativeFunctionBinder.sharedArena)
+ *
+ * // mylib.dll exports:
+ * // int add(int a, int b);
+ * // double multiply(double a, double b);
+ *
+ * // Bind to function add
+ * val add = NativeFunctionBinder.bind(myLib, "add") {
+ *     params(int, int)
  *     returns(int)
  * }
+ *
+ * // Bind to function multiply
+ * val multiply = NativeFunctionBinder.bind(myLib, "multiply") {
+ *     params(double, double)
+ *     returns(double)
+ * }
+ *
+ * // Use
+ * println(add.invokeExact(2, 3))           // 5
+ * println(multiply.invokeExact(2.5, 4.0))  // 10.0
  * ```
+ *
  */
 object NativeFunctionBinder {
     /* === PUBLIC NATIVE COMPONENTS === */
@@ -329,6 +360,26 @@ object NativeFunctionBinder {
         val descriptor = FunctionDescriptorBuilder().apply(builder).build()
         return nativeLinker.downcallHandle(
             kernel32.find(methodName).orElseThrow { NoSuchElementException("Cannot find symbol: $methodName") },
+            descriptor
+        )
+    }
+
+    /**
+     * Binds a User32 function to MethodHandle using DSL builder
+     *
+     * @param methodName Name of the User32 native function
+     * @param builder DSL block for configuring function descriptor
+     *
+     * @return MethodHandle for the native function
+     */
+    @JvmStatic
+    inline fun bindUser32(
+        methodName: String,
+        builder: FunctionDescriptorBuilder.() -> Unit
+    ): MethodHandle {
+        val descriptor = FunctionDescriptorBuilder().apply(builder).build()
+        return nativeLinker.downcallHandle(
+            user32.find(methodName).orElseThrow { NoSuchElementException("Cannot find symbol: $methodName") },
             descriptor
         )
     }

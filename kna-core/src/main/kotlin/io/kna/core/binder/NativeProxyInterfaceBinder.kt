@@ -24,7 +24,8 @@ import java.lang.invoke.*
  * [MemorySegment] and managed through the Foreign Function API.
  *
  * Example usage with Windows Kernel32 interface:
- * ```
+ *
+ * ```kotlin
  * interface Kernel32 {
  *     fun GetCurrentProcessId(): Int
  *     fun GetLastError(): Int
@@ -49,6 +50,24 @@ import java.lang.invoke.*
  *
  * // ... perform operations
  * kernel32.CloseHandle(processHandle)
+ * ```
+ *
+ * For libraries other than the pre-configured ones, you can provide
+ * any [SymbolLookup] instance:
+ *
+ * ```kotlin
+ * // Load your own custom library
+ * val myLib = SymbolLookup.libraryLookup("mylib.dll", NativeFunctionBinder.sharedArena)
+ *
+ * // Define interface matching the native functions
+ * interface MyLibrary {
+ *     fun add(a: Int, b: Int): Int
+ *     fun multiply(a: Double, b: Double): Double
+ * }
+ *
+ * // Bind and use
+ * val math = NativeProxyInterfaceBinder.bind<MyLibrary>(myLib)
+ * val result = math.add(5, 3)  // Calls native add function
  * ```
  *
  * @see NativeFunctionBinder

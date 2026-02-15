@@ -7,7 +7,8 @@ import java.lang.foreign.*
  * Converts a byte array to a hexadecimal string representation.
  *
  * Example:
- * ```
+ *
+ * ```kotlin
  * val hex = bytesToHex(byteArrayOf(0x4D, 0x5A, 0x90)) // "4D 5A 90"
  * ```
  *
@@ -26,7 +27,8 @@ fun bytesToHex(bytes: ByteArray, separator: String = " "): String {
  * Accepts formats with or without spaces, and optional "0x" prefix.
  *
  * Example:
- * ```
+ *
+ * ```kotlin
  * val bytes = hexToBytes("90 90 EB 1F") // byteArrayOf(0x90, 0x90, 0xEB, 0x1F)
  * ```
  *
@@ -52,7 +54,8 @@ fun hexToBytes(hex: String): ByteArray {
  * Formats a byte array as a classic hex dump (hex + ASCII representation).
  *
  * Output format resembles traditional hex editors:
- * ```
+ *
+ * ```kotlin
  * 00000000: 4D 5A 90 00 03 00 00 00 04 00 00 00 FF FF 00 00  |MZ..............|
  * ```
  *
@@ -99,17 +102,17 @@ fun formatHexDump(bytes: ByteArray, bytesPerLine: Int = 16): String {
  * number of bytes from a memory segment.
  *
  * Example:
- * ```
- * val dump = toHexDump(processHandle, 64)
+ *
+ * ```kotlin
+ * val dump = processHandle.toHexDump(64)
  * println(dump) // prints first 64 bytes as hex dump
  * ```
  *
- * @param segment The memory segment to read from
  * @param size Number of bytes to dump (starting from offset 0)
  *
  * @return Formatted hex dump string
  */
-fun toHexDump(segment: MemorySegment, size: Int): String {
-    val bytes = segment.asSlice(0, size.toLong()).toArray(ValueLayout.JAVA_BYTE)
+fun MemorySegment.toHexDump(size: Int): String {
+    val bytes = this.asSlice(0, size.toLong()).toArray(ValueLayout.JAVA_BYTE)
     return formatHexDump(bytes)
 }

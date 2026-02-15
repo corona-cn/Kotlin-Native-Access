@@ -10,7 +10,8 @@ import java.lang.foreign.*
  * from a memory segment without having to remember individual read functions.
  *
  * Example:
- * ```
+ *
+ * ```kotlin
  * val pid = processEntry.readAt<Int>(8)                // read Int at offset 8
  * val namePtr = processEntry.readAt<MemorySegment>(44) // read pointer at offset 44
  * ```
@@ -42,7 +43,8 @@ inline fun <reified T> MemorySegment.readAt(offset: Long): T {
  * to a memory segment. It complements [readAt] for symmetric read/write operations.
  *
  * Example:
- * ```
+ *
+ * ```kotlin
  * buffer.writeAt(0, 42)                 // write Int at offset 0
  * buffer.writeAt(8, somePointer)        // write pointer at offset 8
  * ```
