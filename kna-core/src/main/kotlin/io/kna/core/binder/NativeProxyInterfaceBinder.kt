@@ -1,5 +1,5 @@
-@file:Suppress("Unused", "Nothing_to_inline", "Unchecked_cast")
-package kna.core.binder
+@file:Suppress("Unused", "Unchecked_cast")
+package io.kna.core.binder
 import java.util.concurrent.*
 import java.lang.reflect.*
 import java.lang.foreign.*
@@ -66,7 +66,7 @@ object NativeProxyInterfaceBinder {
     private val methodHandleCache = ConcurrentHashMap<Pair<String, Class<*>>, MethodHandle>()
 
 
-    /* === PUBLIC BINDING FUNCTIONS === */
+    /* === PUBLIC BINDER === */
     /**
      * Binds a native interface to a proxy implementation using the provided library lookup.
      *
@@ -87,8 +87,8 @@ object NativeProxyInterfaceBinder {
     }
 
 
-    /* === INTERNAL BINDING PROCESSORS === */
-    /* Builder */
+    /* === INTERNAL BINDER === */
+    /* Binding Builder */
     /**
      * Creates a proxy implementation of the specified native interface
      * using the provided library lookup.
@@ -114,13 +114,21 @@ object NativeProxyInterfaceBinder {
             .associateWith { method -> getOrCreateMethodHandle(method, library) }
 
         val handler = InvocationHandler { _, method, args ->
-            try {
-                if (method.declaringClass == Any::class.java) {
-                    return@InvocationHandler handleObjectMethod(method, args)
+            if (method.declaringClass == Any::class.java) {
+                return@InvocationHandler try {
+                    when (method.name) {
+                        "toString" -> "NativeProxyInterface for ${method.declaringClass.simpleName}"
+                        "hashCode" -> System.identityHashCode(method.declaringClass)
+                        "equals" -> args?.get(0) === method.declaringClass
+                        else -> null
+                    }
+                } catch (e: Throwable) {
+                    throw RuntimeException("Failed to handle Object method: ${method.name}", e)
                 }
+            }
 
+            try {
                 val handle = methodHandles[method] ?: throw NoSuchMethodException("Method ${method.name} not found in native interface")
-
                 when {
                     args == null || args.isEmpty() -> {
                         handle.invoke()
@@ -151,7 +159,7 @@ object NativeProxyInterfaceBinder {
         return proxy
     }
 
-    /* Method Handle Process */
+    /* Method Handle Processor */
     /**
      * Gets or creates a MethodHandle for a native function based on interface method.
      *
@@ -219,27 +227,6 @@ object NativeProxyInterfaceBinder {
             } catch (e: Throwable) {
                 throw RuntimeException("Failed to create MethodHandle for native function: ${method.name}", e)
             }
-        }
-    }
-
-    /**
-     * Handles Object class methods (toString, hashCode, equals) for the proxy.
-     *
-     * @param method Method being called
-     * @param args Method arguments
-     *
-     * @return Appropriate return value for Object methods
-     */
-    private fun handleObjectMethod(method: Method, args: Array<out Any>?): Any? {
-        return try {
-            when (method.name) {
-                "toString" -> "ProxyNativeInterface for ${method.declaringClass.simpleName}"
-                "hashCode" -> System.identityHashCode(method.declaringClass)
-                "equals" -> args?.get(0) === method.declaringClass
-                else -> null
-            }
-        } catch (e: Throwable) {
-            throw RuntimeException("Failed to handle Object method: ${method.name}", e)
         }
     }
 }

@@ -1,5 +1,5 @@
-@file:Suppress("Unused", "Nothing_to_inline", "PropertyName")
-package kna.core.binder
+@file:Suppress("Unused", "PropertyName")
+package io.kna.core.binder
 import java.lang.foreign.*
 import java.lang.invoke.*
 import java.nio.*
@@ -78,6 +78,12 @@ object NativeFunctionBinder {
      */
     @JvmField
     val kernel32: SymbolLookup = SymbolLookup.libraryLookup("kernel32", sharedArena)
+
+    /**
+     * User32 library symbol lookup
+     */
+    @JvmField
+    val user32: SymbolLookup = SymbolLookup.libraryLookup("user32", sharedArena)
 
 
     /* === PUBLIC BINDING BUILDERS === */

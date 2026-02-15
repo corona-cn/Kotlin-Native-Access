@@ -1,7 +1,7 @@
 /* === SERIES INFORMATION === */
 val seriesId = "kna"
-val seriesGroupId = "kna"
-val seriesVersion = "1.0"
+val seriesGroupId = "io.kna"
+val seriesVersion = "1.0-SNAPSHOT"
 
 
 /* === OWNER INFORMATION === */
