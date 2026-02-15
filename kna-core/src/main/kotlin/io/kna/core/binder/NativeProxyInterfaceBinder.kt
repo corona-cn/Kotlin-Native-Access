@@ -82,6 +82,7 @@ object NativeProxyInterfaceBinder {
      * @throws NoSuchElementException if any native function symbol is not found in the library
      * @throws IllegalArgumentException if interface contains unsupported parameter/return types
      */
+    @JvmStatic
     inline fun <reified T : Any> bind(library: SymbolLookup): T {
         return create(T::class.java, library)
     }
@@ -102,6 +103,7 @@ object NativeProxyInterfaceBinder {
      * @throws NoSuchElementException if any native function symbol is not found
      * @throws IllegalArgumentException if interface contains unsupported parameter/return types
      */
+    @JvmStatic
     @PublishedApi
     internal fun <T : Any> create(interfaceClass: Class<T>, library: SymbolLookup): T {
         val cachedProxy = proxyCache[interfaceClass]
@@ -174,6 +176,7 @@ object NativeProxyInterfaceBinder {
      * @throws NoSuchElementException if native function symbol not found
      * @throws IllegalArgumentException if parameter/return types are unsupported
      */
+    @JvmStatic
     private fun getOrCreateMethodHandle(method: Method, library: SymbolLookup): MethodHandle {
         val key = method.name to method.returnType
         return methodHandleCache.computeIfAbsent(key) {

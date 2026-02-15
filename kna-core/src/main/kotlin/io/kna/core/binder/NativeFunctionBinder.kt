@@ -96,57 +96,68 @@ object NativeFunctionBinder {
         /**
          * 1-byte signed integer, byte order dependent on JVM
          */
+        @JvmField
         val byte: ValueLayout.OfByte = ValueLayout.JAVA_BYTE
 
         /**
          * 2-byte signed integer, byte order dependent on JVM
          */
+        @JvmField
         val short: ValueLayout.OfShort = ValueLayout.JAVA_SHORT
 
         /**
          * 4-byte signed integer, byte order dependent on JVM
          */
+        @JvmField
         val int: ValueLayout.OfInt = ValueLayout.JAVA_INT
 
         /**
          * 8-byte signed integer, byte order dependent on JVM
          */
+        @JvmField
         val long: ValueLayout.OfLong = ValueLayout.JAVA_LONG
 
         /**
          * 4-byte float, byte order dependent on JVM
          */
+        @JvmField
         val float: ValueLayout.OfFloat = ValueLayout.JAVA_FLOAT
 
         /**
          * 8-byte double, byte order dependent on JVM
          */
+        @JvmField
         val double: ValueLayout.OfDouble = ValueLayout.JAVA_DOUBLE
 
         /**
          * 1-byte boolean, byte order dependent on JVM
          */
+        @JvmField
         val boolean: ValueLayout.OfBoolean = ValueLayout.JAVA_BOOLEAN
 
         /**
          * 2-byte Unicode character, byte order dependent on JVM
          */
+        @JvmField
         val char: ValueLayout.OfChar = ValueLayout.JAVA_CHAR
 
         /* Pointer */
         /**
          * Native pointer sized memory address (8-byte on 64-bit systems, 4-byte on 32-bit systems)
          */
+        @JvmField
         val address: AddressLayout = ValueLayout.ADDRESS
 
         /**
          * Native pointer with little-endian byte order
          */
+        @JvmField
         val address_le: AddressLayout = ValueLayout.ADDRESS.withOrder(ByteOrder.LITTLE_ENDIAN)
 
         /**
          * Native pointer with big-endian byte order
          */
+        @JvmField
         val address_be: AddressLayout = ValueLayout.ADDRESS.withOrder(ByteOrder.BIG_ENDIAN)
 
 
@@ -154,21 +165,25 @@ object NativeFunctionBinder {
         /**
          * 1-byte unsigned integer (0 to 255) - use byte layout
          */
+        @JvmField
         val ubyte: ValueLayout.OfByte = ValueLayout.JAVA_BYTE
 
         /**
          * 2-byte unsigned integer (0 to 65535) - use short layout
          */
+        @JvmField
         val ushort: ValueLayout.OfShort = ValueLayout.JAVA_SHORT
 
         /**
          * 4-byte unsigned integer (0 to 2^32-1) - use int layout
          */
+        @JvmField
         val uint: ValueLayout.OfInt = ValueLayout.JAVA_INT
 
         /**
          * 8-byte unsigned integer (0 to 2^64-1) - use long layout
          */
+        @JvmField
         val ulong: ValueLayout.OfLong = ValueLayout.JAVA_LONG
 
 
@@ -176,46 +191,55 @@ object NativeFunctionBinder {
         /**
          * C 'char' type - 1 byte signed/unsigned (implementation-defined)
          */
+        @JvmField
         val c_char: ValueLayout.OfByte = ValueLayout.JAVA_BYTE
 
         /**
          * C 'short' type - 2 bytes signed
          */
+        @JvmField
         val c_short: ValueLayout.OfShort = ValueLayout.JAVA_SHORT
 
         /**
          * C 'int' type - 4 bytes signed
          */
+        @JvmField
         val c_int: ValueLayout.OfInt = ValueLayout.JAVA_INT
 
         /**
          * C 'long' type - 8 bytes on 64-bit, 4 bytes on 32-bit systems (use long for 64-bit)
          */
+        @JvmField
         val c_long: ValueLayout.OfLong = ValueLayout.JAVA_LONG
 
         /**
          * C 'long long' type - 8 bytes signed
          */
+        @JvmField
         val c_longlong: ValueLayout.OfLong = ValueLayout.JAVA_LONG
 
         /**
          * C 'float' type - 4 bytes
          */
+        @JvmField
         val c_float: ValueLayout.OfFloat = ValueLayout.JAVA_FLOAT
 
         /**
          * C 'double' type - 8 bytes
          */
+        @JvmField
         val c_double: ValueLayout.OfDouble = ValueLayout.JAVA_DOUBLE
 
         /**
          * C 'void*' type - native pointer
          */
+        @JvmField
         val c_pointer: AddressLayout = ValueLayout.ADDRESS
 
         /**
          * C 'size_t' type - unsigned integer size (64-bit on 64-bit systems)
          */
+        @JvmField
         val c_size_t: ValueLayout.OfLong = ValueLayout.JAVA_LONG
 
 
@@ -223,12 +247,14 @@ object NativeFunctionBinder {
         /**
          * Mutable list of argument layouts
          */
+        @JvmField
         @PublishedApi
         internal val arguments = mutableListOf<MemoryLayout>()
 
         /**
          * Return layout (null if not set)
          */
+        @JvmField
         @PublishedApi
         internal var returnLayout: MemoryLayout? = null
 
@@ -274,6 +300,7 @@ object NativeFunctionBinder {
      *
      * @return MethodHandle for the native function
      */
+    @JvmStatic
     inline fun bind(
         library: SymbolLookup,
         methodName: String,
@@ -294,6 +321,7 @@ object NativeFunctionBinder {
      *
      * @return MethodHandle for the native function
      */
+    @JvmStatic
     inline fun bindKernel32(
         methodName: String,
         builder: FunctionDescriptorBuilder.() -> Unit
