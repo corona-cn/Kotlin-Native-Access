@@ -1,8 +1,9 @@
 @file:Suppress("Unused", "PropertyName")
 package io.kna.core.binder
+import io.kna.core.layout.*
+
 import java.lang.foreign.*
 import java.lang.invoke.*
-import java.nio.*
 
 /**
  * Native function binder for Windows API.
@@ -121,159 +122,7 @@ object NativeFunctionBinder {
     /**
      * DSL builder for FunctionDescriptor creation
      */
-    class FunctionDescriptorBuilder {
-        /* === PROVIDED VALUE LAYOUTS === */
-        /* Primitive */
-        /**
-         * 1-byte signed integer, byte order dependent on JVM
-         */
-        @JvmField
-        val byte: ValueLayout.OfByte = ValueLayout.JAVA_BYTE
-
-        /**
-         * 2-byte signed integer, byte order dependent on JVM
-         */
-        @JvmField
-        val short: ValueLayout.OfShort = ValueLayout.JAVA_SHORT
-
-        /**
-         * 4-byte signed integer, byte order dependent on JVM
-         */
-        @JvmField
-        val int: ValueLayout.OfInt = ValueLayout.JAVA_INT
-
-        /**
-         * 8-byte signed integer, byte order dependent on JVM
-         */
-        @JvmField
-        val long: ValueLayout.OfLong = ValueLayout.JAVA_LONG
-
-        /**
-         * 4-byte float, byte order dependent on JVM
-         */
-        @JvmField
-        val float: ValueLayout.OfFloat = ValueLayout.JAVA_FLOAT
-
-        /**
-         * 8-byte double, byte order dependent on JVM
-         */
-        @JvmField
-        val double: ValueLayout.OfDouble = ValueLayout.JAVA_DOUBLE
-
-        /**
-         * 1-byte boolean, byte order dependent on JVM
-         */
-        @JvmField
-        val boolean: ValueLayout.OfBoolean = ValueLayout.JAVA_BOOLEAN
-
-        /**
-         * 2-byte Unicode character, byte order dependent on JVM
-         */
-        @JvmField
-        val char: ValueLayout.OfChar = ValueLayout.JAVA_CHAR
-
-        /* Pointer */
-        /**
-         * Native pointer sized memory address (8-byte on 64-bit systems, 4-byte on 32-bit systems)
-         */
-        @JvmField
-        val address: AddressLayout = ValueLayout.ADDRESS
-
-        /**
-         * Native pointer with little-endian byte order
-         */
-        @JvmField
-        val address_le: AddressLayout = ValueLayout.ADDRESS.withOrder(ByteOrder.LITTLE_ENDIAN)
-
-        /**
-         * Native pointer with big-endian byte order
-         */
-        @JvmField
-        val address_be: AddressLayout = ValueLayout.ADDRESS.withOrder(ByteOrder.BIG_ENDIAN)
-
-
-        /* Unsinged Primitive */
-        /**
-         * 1-byte unsigned integer (0 to 255) - use byte layout
-         */
-        @JvmField
-        val ubyte: ValueLayout.OfByte = ValueLayout.JAVA_BYTE
-
-        /**
-         * 2-byte unsigned integer (0 to 65535) - use short layout
-         */
-        @JvmField
-        val ushort: ValueLayout.OfShort = ValueLayout.JAVA_SHORT
-
-        /**
-         * 4-byte unsigned integer (0 to 2^32-1) - use int layout
-         */
-        @JvmField
-        val uint: ValueLayout.OfInt = ValueLayout.JAVA_INT
-
-        /**
-         * 8-byte unsigned integer (0 to 2^64-1) - use long layout
-         */
-        @JvmField
-        val ulong: ValueLayout.OfLong = ValueLayout.JAVA_LONG
-
-
-        /* C/C++ Compatibility */
-        /**
-         * C 'char' type - 1 byte signed/unsigned (implementation-defined)
-         */
-        @JvmField
-        val c_char: ValueLayout.OfByte = ValueLayout.JAVA_BYTE
-
-        /**
-         * C 'short' type - 2 bytes signed
-         */
-        @JvmField
-        val c_short: ValueLayout.OfShort = ValueLayout.JAVA_SHORT
-
-        /**
-         * C 'int' type - 4 bytes signed
-         */
-        @JvmField
-        val c_int: ValueLayout.OfInt = ValueLayout.JAVA_INT
-
-        /**
-         * C 'long' type - 8 bytes on 64-bit, 4 bytes on 32-bit systems (use long for 64-bit)
-         */
-        @JvmField
-        val c_long: ValueLayout.OfLong = ValueLayout.JAVA_LONG
-
-        /**
-         * C 'long long' type - 8 bytes signed
-         */
-        @JvmField
-        val c_longlong: ValueLayout.OfLong = ValueLayout.JAVA_LONG
-
-        /**
-         * C 'float' type - 4 bytes
-         */
-        @JvmField
-        val c_float: ValueLayout.OfFloat = ValueLayout.JAVA_FLOAT
-
-        /**
-         * C 'double' type - 8 bytes
-         */
-        @JvmField
-        val c_double: ValueLayout.OfDouble = ValueLayout.JAVA_DOUBLE
-
-        /**
-         * C 'void*' type - native pointer
-         */
-        @JvmField
-        val c_pointer: AddressLayout = ValueLayout.ADDRESS
-
-        /**
-         * C 'size_t' type - unsigned integer size (64-bit on 64-bit systems)
-         */
-        @JvmField
-        val c_size_t: ValueLayout.OfLong = ValueLayout.JAVA_LONG
-
-
+    class FunctionDescriptorBuilder : NativeLayoutScope() {
         /* === INTERNAL BUILDER COMPONENTS === */
         /**
          * Mutable list of argument layouts
@@ -292,38 +141,38 @@ object NativeFunctionBinder {
 
         /* === PUBLIC BUILDER FUNCTIONS === */
         /**
-         * Sets function parameter layouts in order
+         * Sets function parameter layouts in order.
          */
-        fun params(vararg layouts: MemoryLayout) {
-            arguments.addAll(layouts)
+        fun params(vararg layouts: NativeLayout<*>) {
+            arguments.addAll(layouts.map { it.layout })
         }
 
         /**
-         * Sets function return layout
+         * Sets function return layout.
          */
-        fun returns(layout: MemoryLayout) {
-            returnLayout = layout
+        fun returns(layout: NativeLayout<*>) {
+            returnLayout = layout.layout
         }
 
 
         /* === INTERNAL BUILDER FUNCTIONS === */
         /**
-         * Builds FunctionDescriptor from configured layouts
+         * Builds FunctionDescriptor from configured layouts.
          */
         @PublishedApi
         internal fun build(): FunctionDescriptor {
-            if (returnLayout == null) {
-                throw IllegalStateException("FunctionDescriptorBuilder returnLayout is null")
+            return if (returnLayout == null) {
+                FunctionDescriptor.ofVoid(*arguments.toTypedArray())
+            } else {
+                FunctionDescriptor.of(returnLayout, *arguments.toTypedArray())
             }
-
-            return FunctionDescriptor.of(returnLayout, *arguments.toTypedArray())
         }
     }
 
 
     /* === PUBLIC BINDING FUNCTIONS === */
     /**
-     * Binds a native function to MethodHandle using DSL builder
+     * Binds a native function to MethodHandle using DSL builder.
      *
      * @param library SymbolLookup of target library
      * @param methodName Name of the native function
@@ -345,7 +194,7 @@ object NativeFunctionBinder {
     }
 
     /**
-     * Binds a Kernel32 function to MethodHandle using DSL builder
+     * Binds a Kernel32 function to MethodHandle using DSL builder.
      *
      * @param methodName Name of the Kernel32 native function
      * @param builder DSL block for configuring function descriptor
@@ -365,7 +214,7 @@ object NativeFunctionBinder {
     }
 
     /**
-     * Binds a User32 function to MethodHandle using DSL builder
+     * Binds a User32 function to MethodHandle using DSL builder.
      *
      * @param methodName Name of the User32 native function
      * @param builder DSL block for configuring function descriptor

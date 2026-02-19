@@ -1,5 +1,5 @@
 @file:Suppress("Unused", "FunctionName")
-package io.kna.core.native
+package io.kna.core.library
 import io.kna.core.binder.*
 
 import java.lang.foreign.*
@@ -15,7 +15,7 @@ interface User32 {
     companion object {
         /* === NATIVE BINDINGS === */
         /**
-         * Pre-bound User32 instance.
+         * Pre-bound User32 instance
          *
          * Example:
          *
@@ -26,7 +26,7 @@ interface User32 {
          *
          */
         @JvmField
-        val user32 = NativeProxyInterfaceBinder.bind<User32>(NativeFunctionBinder.user32)
+        val user32 = NativeInterfaceProxyBinder.bind<User32>(NativeFunctionBinder.user32)
     }
 
 
