@@ -64,7 +64,7 @@ subprojects {
                 }
             }
 
-            // Configure publication
+            // Configure publications
             publications {
                 // Configure all publication
                 all {
@@ -76,14 +76,14 @@ subprojects {
 
                 // Configure maven publication
                 create<MavenPublication>("maven") {
-                    // Configure basic information
+                    // Configure universal information
                     groupId = seriesGroupId
                     artifactId = subprojectId
                     version = seriesVersion
 
                     // Configure pom
                     pom {
-                        // Configure information
+                        // Configure universal information
                         name.set(subprojectId)
                         description.set("Description of $subprojectId")
                         url.set("https://github.com/$ownerId/$seriesId/blob/$subprojectId")
@@ -96,7 +96,7 @@ subprojects {
                             }
                         }
 
-                        // Configure developer
+                        // Configure developers
                         developers {
                             developer {
                                 id.set(ownerId)

@@ -27,4 +27,4 @@ pluginManagement {
 
 /* === PROJECT INCLUSION CONFIGURATION === */
 // Include all subprojects in the build
-include("kna-core")
+include("kna")
